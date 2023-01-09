@@ -13,7 +13,7 @@ jobs:
       - run:
           name: Execute bucket.yml - Create Cloudformation Stack
           command: >
-            aws cloudformation deploy --template-file bucket.yml --stack-name stack-create-bucket-${CIRCLE_WORKFLOW_ID:0:7} --parameter-overrides MyBucketName="mybucket-${CIRCLE_WORKFLOW_ID:0:7}"
+            aws cloudformation deploy --region us-east-1 --template-file bucket.yml --stack-name stack-create-bucket-${CIRCLE_WORKFLOW_ID:0:7} --parameter-overrides MyBucketName="mybucket-${CIRCLE_WORKFLOW_ID:0:7}"
       - run: aws s3 sync . s3://mybucket-${CIRCLE_WORKFLOW_ID:0:7} --delete
 
 
@@ -26,7 +26,7 @@ jobs:
       - run:
           name: Fetch and save the old pipeline ID (bucket name) responsible for the last release.
           command: |
-            aws cloudformation list-exports --query "Exports[?Name==\`PipelineID\`].Value" --no-paginate --output text > ~/textfile.txt
+            aws cloudformation list-exports --region us-east-1 --query "Exports[?Name==\`PipelineID\`].Value" --no-paginate --output text > ~/textfile.txt
       - persist_to_workspace:
           root: ~/
           paths: 
@@ -40,7 +40,7 @@ jobs:
       - run:
           name: Execute cloudfront.yml
           command: |
-            aws cloudformation deploy --template-file cloudfront.yml --stack-name production-distrop --parameter-overrides PipelineID="mybucket-${CIRCLE_WORKFLOW_ID:0:7}"
+            aws cloudformation deploy --region us-east-1 --template-file cloudfront.yml --stack-name production-distrop --parameter-overrides PipelineID="mybucket-${CIRCLE_WORKFLOW_ID:0:7}"
 
   clean_up_old_front_end:
     docker:
